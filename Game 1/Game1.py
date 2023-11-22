@@ -1,11 +1,11 @@
 import pygame
 import sys
 from game_parameters import *
-from background import draw_background, add_zombies
+from background import draw_background, add_zombies, add_fishes
 from player import Player
 import random
 from zombie import zombies
-
+from fish import fishes
 
 #initialize pygame
 pygame.init()
@@ -25,22 +25,30 @@ draw_background(background)
 #create a player character
 player = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
 
+#initialize score
+score = 0
+score_font =pygame.font.Font("../assets/fonts/Humongous of Eternity St.ttf", 30)
+text = score_font.render(f"{score}", True, (255,0,0))
+
 #draw zombies on the screen
 add_zombies(3)
 
+#draw fish on screen
+add_fishes(3)
+
 #draw lives
-life_icon = pygame.image.load("../assets/sprites/heart.png").convert()
+life_icon = pygame.image.load("../assets/sprites/head_focus.png").convert()
 life_icon.set_colorkey((0,0,0))
 
 #set lives
 lives = NUM_LIVES
 
 
-while NUM_LIVES>0 and running:
+while lives > 0 and running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        # control fish with keyboard
+        # control player with keyboard
         player.stop()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
@@ -65,6 +73,14 @@ while NUM_LIVES>0 and running:
     #update our zombie location
     zombies.update()
 
+    #check for player/fish collisions
+    result = pygame.sprite.spritecollide(player, fishes, True)
+    #print(result)
+    if result:
+        score += len(result)
+        #draw more fish
+        add_fishes(len(result))
+
     #check for player/zombie collisions
     result = pygame.sprite.spritecollide(player, zombies, True)
     #print(result)
@@ -84,6 +100,11 @@ while NUM_LIVES>0 and running:
     #draw game objects
     player.draw(screen)
     zombies.draw(screen)
+    fishes.draw(screen)
+
+    #draw score
+    screen.blit(text,(SCREEN_WIDTH-TILE_SIZE, 0))
+    text = score_font.render(f"{score}", True, (255, 0, 0))
 
     #draw lives in lower left corner
     for i in range(lives):
