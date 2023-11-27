@@ -5,6 +5,7 @@ import random
 from zombie import Zombie, zombies
 pygame.display.init()
 from fish import Fish, fishes
+from powerup import Power, powers
 
 
 def draw_background(screen):
@@ -36,4 +37,9 @@ def add_fishes(num_fishes):
 def add_zombies(num_zombies):
     for _ in range(num_zombies):
         zombies.add(Zombie(random.randint(SCREEN_WIDTH, (SCREEN_WIDTH * 1.5)),
+                            random.randint(TILE_SIZE, SCREEN_HEIGHT - TILE_SIZE)))
+
+def add_power(num_power):
+    for _ in range(num_power):
+        powers.add(Power(random.randint(0, SCREEN_WIDTH),
                             random.randint(TILE_SIZE, SCREEN_HEIGHT - TILE_SIZE)))

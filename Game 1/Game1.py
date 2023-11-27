@@ -1,11 +1,12 @@
 import pygame
 import sys
 from game_parameters import *
-from background import draw_background, add_zombies, add_fishes
+from background import draw_background, add_zombies, add_fishes, add_power
 from player import Player
 import random
 from zombie import zombies
 from fish import fishes
+from powerup import powers
 
 #initialize pygame
 pygame.init()
@@ -36,8 +37,11 @@ add_zombies(3)
 #draw fish on screen
 add_fishes(3)
 
+#draw powerups
+add_power(1)
+
 #draw lives
-life_icon = pygame.image.load("../assets/sprites/head_focus.png").convert()
+life_icon = pygame.image.load("../assets/sprites/platformPack_item017.png").convert_alpha()
 life_icon.set_colorkey((0,0,0))
 
 #set lives
@@ -90,6 +94,19 @@ while lives > 0 and running:
         #draw more zombies
         add_zombies(len(result))
 
+    #check for player/powerup collisions
+    result = pygame.sprite.spritecollide(player, powers, True)
+    #print(result)
+    if result:
+        #gain lives if they collide
+        lives += len(result)
+        #draw more powerups
+        add_power(len(result))
+        #add zombies to make game harder
+        if lives > 3:
+            add_zombies(1)
+
+
 
     #check if zombie is off the screen
     for zombie in zombies:
@@ -101,6 +118,7 @@ while lives > 0 and running:
     player.draw(screen)
     zombies.draw(screen)
     fishes.draw(screen)
+    powers.draw(screen)
 
     #draw score
     screen.blit(text,(SCREEN_WIDTH-TILE_SIZE, 0))
@@ -113,11 +131,31 @@ while lives > 0 and running:
     # update display
     pygame.display.flip()
 
+
     # limit frame rate
     clock.tick(50)
 
-# quit pygame
-pygame.quit()
+#once all lives are gone:
+#create new background when game over
+screen.blit(background, (0, 0))
+
+#show game over message and final score
+message = score_font.render("You died.", True, (0,0,0))
+screen.blit(message, (SCREEN_WIDTH/2 - message.get_width()/2, SCREEN_HEIGHT/2 - 2*message.get_height()))
+score_text = score_font.render(f"Score: {score}", True, (0,0,0))
+screen.blit(score_text, (SCREEN_WIDTH/2 - score_text.get_width()/2, SCREEN_HEIGHT/2 - score_text.get_height()/2))
+
+#update display
+pygame.display.flip()
+
+
+#wait for user to exit game
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
 
 
 
