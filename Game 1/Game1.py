@@ -31,6 +31,11 @@ score = 0
 score_font =pygame.font.Font("../assets/fonts/Humongous of Eternity St.ttf", 30)
 text = score_font.render(f"{score}", True, (255,0,0))
 
+#initialize time
+time = 0
+time_font =pygame.font.Font("../assets/fonts/Humongous of Eternity St.ttf", 30)
+time_text = score_font.render(f"{score}", True, (255,0,0))
+
 #draw zombies on the screen
 add_zombies(3)
 
@@ -120,6 +125,11 @@ while lives > 0 and running:
     fishes.draw(screen)
     powers.draw(screen)
 
+    #draw time
+    time += 1
+    screen.blit(time_text,(TILE_SIZE, 0))
+    time_text = time_font.render(f"{int(time/50)}", True, (255, 0, 0))
+
     #draw score
     screen.blit(text,(SCREEN_WIDTH-TILE_SIZE, 0))
     text = score_font.render(f"{score}", True, (255, 0, 0))
@@ -135,6 +145,7 @@ while lives > 0 and running:
     # limit frame rate
     clock.tick(50)
 
+
 #once all lives are gone:
 #create new background when game over
 screen.blit(background, (0, 0))
@@ -144,6 +155,8 @@ message = score_font.render("You died.", True, (0,0,0))
 screen.blit(message, (SCREEN_WIDTH/2 - message.get_width()/2, SCREEN_HEIGHT/2 - 2*message.get_height()))
 score_text = score_font.render(f"Score: {score}", True, (0,0,0))
 screen.blit(score_text, (SCREEN_WIDTH/2 - score_text.get_width()/2, SCREEN_HEIGHT/2 - score_text.get_height()/2))
+time_text = time_font.render(f"Time: {int(time/50)} seconds", True, (0, 0, 0))
+screen.blit(time_text, (SCREEN_WIDTH/2 - time_text.get_width()/2, SCREEN_HEIGHT- SCREEN_HEIGHT/3 - time_text.get_height()))
 
 #update display
 pygame.display.flip()
