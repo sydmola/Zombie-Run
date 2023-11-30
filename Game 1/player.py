@@ -8,6 +8,7 @@ class Player(pygame.sprite.Sprite):
         #flip player if going the other way
         self.forward_image = pygame.image.load("../assets/sprites/female_stand.png")
         self.reverse_image = pygame.image.load("../assets/sprites/female_back.png")
+        self.hurt_image = pygame.image.load("../assets/sprites/female_hurt.png")
         self.image = self.forward_image
         self.rect = self.image.get_rect()
         self.x = x
@@ -34,6 +35,9 @@ class Player(pygame.sprite.Sprite):
     def stop(self):
         self.x_speed = 0
         self.y_speed = 0
+
+    def hurt(self):
+        self.image = self. hurt_image
 
     def update(self):
         #make player stay on screen
