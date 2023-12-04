@@ -1,7 +1,5 @@
-#create fish class
+#create powerup class
 import pygame
-import random
-from game_parameters import *
 
 class Power(pygame.sprite.Sprite):
     def __init__(self, x, y):

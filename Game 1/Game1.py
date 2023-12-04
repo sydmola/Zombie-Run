@@ -7,56 +7,67 @@ from zombie import zombies
 from fish import fishes
 from powerup import powers
 
-#initialize pygame
+# initialize pygame
 pygame.init()
 
-#create screen
+# create screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('load background')
 
-#clock object
+# clock object
 clock = pygame.time.Clock()
 
-#load background
+# load background
 running = True
 background = screen.copy()
 draw_background(background)
 
-#create a player character
+# load sound effects
+chomp = pygame.mixer.Sound("../assets/sounds/chomp.wav")
+powerup = pygame.mixer.Sound("../assets/sounds/Mario power up Epic Sound FX.mp3")
+collect = pygame.mixer.Sound("../assets/sounds/Collect Item Sound Effect.mp3")
+womp = pygame.mixer.Sound("../assets/sounds/Womp Womp Womp sound effect.mp3")
+
+# create a player character
 player = Player(SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
 
-#initialize score
+# initialize score
 score = 0
-score_font =pygame.font.Font("../assets/fonts/Humongous of Eternity St.ttf", 30)
-text = score_font.render(f"{score}", True, (255,0,0))
+score_font = pygame.font.Font("../assets/fonts/Humongous of Eternity St.ttf", 30)
+text = score_font.render(f"{score}", True, (255, 0, 0))
 
-#initialize time
+# initialize time
 time = 0
-time_font =pygame.font.Font("../assets/fonts/Humongous of Eternity St.ttf", 30)
-time_text = score_font.render(f"{score}", True, (255,0,0))
+time_font = pygame.font.Font("../assets/fonts/Humongous of Eternity St.ttf", 30)
+time_text = score_font.render(f"{score}", True, (255, 0, 0))
 
-#draw zombies on the screen
+# draw zombies on the screen
 add_zombies(3)
 
-#draw fish on screen
+# draw fish on screen
 add_fishes(3)
 
-#draw powerups
+# draw powerups
 add_power(1)
 
-#draw lives
+# draw lives
 life_icon = pygame.image.load("../assets/sprites/platformPack_item017.png").convert_alpha()
-life_icon.set_colorkey((0,0,0))
+life_icon.set_colorkey((0, 0, 0))
 
-#set lives
+# set lives
 lives = NUM_LIVES
 
-#set game to start menu
+# play background music
+pygame.mixer.music.load('../assets/sounds/tense background music.mp3')
+pygame.mixer.music.play(-1)  # plays indefinitely
+
+
+# set game to start menu
 game_state = "start_menu"
 
 
-#____Main loop____
-while lives> 0 and running:
+# ____Main loop____
+while lives > 0 and running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -77,132 +88,130 @@ while lives> 0 and running:
                 print("you pressed the right key")
                 player.move_right()
 
-
-    #draw start menu
+    # draw start menu
     if game_state == "start_menu":
         draw_start_menu(screen)
 
-    #play game when they press start
+    # play game when they press start
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE]:
             game_state = "game"
-            #game_over = False
+
+    # quit game when they press x
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_x]:
+            pygame.quit()
 
     if game_state == "game":
-        #draw background
-        screen.blit(background, (0,0))
+        # draw background
+        screen.blit(background, (0, 0))
 
-        #draw player
+        # draw player
         player.update()
 
-        #update our zombie location
+        # update our zombie location
         zombies.update()
 
-        #check for player/fish collisions
+        # check for player/fish collisions
         result = pygame.sprite.spritecollide(player, fishes, True)
-        #print(result)
+        # print(result)
         if result:
             score += len(result)
-            #draw more fish
+            # play collection sound
+            pygame.mixer.Sound.play(collect)
+            # draw more fish
             add_fishes(len(result))
 
-        #check for player/zombie collisions
+        # check for player/zombie collisions
         result = pygame.sprite.spritecollide(player, zombies, True)
-        #print(result)
+        # print(result)
         if result:
-            #become hurt image
+            # become hurt image
             player.hurt()
-            #lose lives if hurt
+            # lose lives if hurt
             lives -= len(result)
-            #draw more zombies
+            # play chomp(eating) sound
+            pygame.mixer.Sound.play(chomp)
+            # draw more zombies
             add_zombies(len(result))
 
-        #check for player/powerup collisions
+        # check for player/powerup collisions
         result = pygame.sprite.spritecollide(player, powers, True)
-        #print(result)
+        # print(result)
         if result:
-            #gain lives if they collide
+            # gain lives if they collide
             lives += len(result)
-            #draw more powerups
+            # play powerup sound
+            pygame.mixer.Sound.play(powerup)
+            # draw more powerups
             add_power(len(result))
-            #add zombies to make game harder
+            # add zombies to make game harder
             if lives > 3:
                 add_zombies(1)
 
-
-        #check if zombie is off the screen
+        # check if zombie is off the screen
         for zombie in zombies:
             if zombie.rect.x < -zombie.rect.width:
-                zombies.remove(zombie) #removing the zombie from the sprite group
+                zombies.remove(zombie)  # removing the zombie from the sprite group
                 add_zombies(1)
 
-        #draw game objects
+        # draw game objects
         player.draw(screen)
         zombies.draw(screen)
         fishes.draw(screen)
         powers.draw(screen)
 
-        #draw time
+        # draw time
         time += 1
-        screen.blit(time_text,(TILE_SIZE, 0))
+        screen.blit(time_text, (TILE_SIZE, 0))
         time_text = time_font.render(f"{int(time/50)}", True, (255, 0, 0))
 
-        #draw score
-        screen.blit(text,(SCREEN_WIDTH-TILE_SIZE, 0))
+        # draw score
+        screen.blit(text, (SCREEN_WIDTH-TILE_SIZE, 0))
         text = score_font.render(f"{score}", True, (255, 0, 0))
 
-        #draw lives in lower left corner
+        # draw lives in lower left corner
         for i in range(lives):
             screen.blit(life_icon, (i*TILE_SIZE, SCREEN_HEIGHT-TILE_SIZE))
 
-
         # update display
         pygame.display.flip()
-
 
         # limit frame rate
         clock.tick(50)
 
 
+# show game over message and final score
+# once all lives are gone:
+# play womp womp sound effect
+pygame.mixer.Sound.play(womp)
 
-game_state = "Game over"
-            # show game over message and final score
-if game_state == 'Game over':
-            # once all lives are gone:
-            # create new background when game over
-            screen.blit(background, (0, 0))
+# create new background when game over
+screen.blit(background, (0, 0))
 
-            message = score_font.render("You died.", True, (0, 0, 0))
-            screen.blit(message,
-                        (SCREEN_WIDTH / 2 - message.get_width() / 2, SCREEN_HEIGHT / 2 - 2 * message.get_height()))
-            score_text = score_font.render(f"Score: {score}", True, (0, 0, 0))
-            screen.blit(score_text,
-                        (SCREEN_WIDTH / 2 - score_text.get_width() / 2,
-                         SCREEN_HEIGHT / 2 - score_text.get_height() / 2))
-            time_text = time_font.render(f"Time: {int(time / 50)} seconds", True, (0, 0, 0))
-            screen.blit(time_text, (
+# stop background music
+pygame.mixer.music.stop()
+
+# create text on background screen
+message = score_font.render("You died.", True, (0, 0, 0))
+screen.blit(message,
+            (SCREEN_WIDTH / 2 - message.get_width() / 2, SCREEN_HEIGHT / 2 - 2 * message.get_height()))
+score_text = score_font.render(f"Score: {score}", True, (0, 0, 0))
+screen.blit(score_text,
+            (SCREEN_WIDTH / 2 - score_text.get_width() / 2,
+                SCREEN_HEIGHT / 2 - score_text.get_height() / 2))
+time_text = time_font.render(f"Time: {int(time / 50)} seconds", True, (0, 0, 0))
+screen.blit(time_text, (
                 SCREEN_WIDTH / 2 - time_text.get_width() / 2,
                 SCREEN_HEIGHT - SCREEN_HEIGHT / 3 - time_text.get_height()))
-            restart_message = score_font.render("Press space to restart", True, (0, 0, 0))
-            screen.blit(restart_message, (SCREEN_WIDTH / 2 - restart_message.get_width() / 2,
-                                          SCREEN_HEIGHT - SCREEN_HEIGHT / 4 - restart_message.get_height()))
-
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_SPACE]:
-                game_state = "game"
 
 
-#update display
+# update display
 pygame.display.flip()
 
-
-#wait for user to exit game
+# wait for user to exit game
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
-
-
-

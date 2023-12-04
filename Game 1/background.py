@@ -1,5 +1,4 @@
 import pygame
-import sys
 from game_parameters import *
 import random
 from zombie import Zombie, zombies
@@ -27,13 +26,17 @@ def draw_background(screen):
             screen.blit(road, (x, y))
 
 def draw_start_menu(screen):
-    screen.fill((100, 100, 100))
+    screen.fill((100, 100, 150))
     menu_font =pygame.font.Font("../assets/fonts/Humongous of Eternity St.ttf", 30)
     title = menu_font.render('Zombie Run', True, (255, 255, 255))
     start_button = menu_font.render('Press Space to Start', True, (255, 255, 255))
+    exit_button = menu_font.render('Press X to quit', True, (255, 255, 255))
     screen.blit(title, (SCREEN_WIDTH/2 - title.get_width()/2, SCREEN_HEIGHT/2 - title.get_height()/2))
     screen.blit(start_button, (SCREEN_WIDTH/2 - start_button.get_width()/2, SCREEN_HEIGHT/2 + start_button.get_height()/2))
+    screen.blit(exit_button, (SCREEN_WIDTH/2 - exit_button.get_width()/2, SCREEN_HEIGHT/2 + exit_button.get_height()*(3/2)))
     pygame.display.update()
+
+
 
 
 
